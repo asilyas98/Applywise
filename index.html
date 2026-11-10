@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#EDF0F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E131A" media="(prefers-color-scheme: dark)">
+<title>Offer Desk</title>
+<link rel="icon" href="/icon.png">
+</head>
+<body>
+<div id="boot" class="boot"><span class="mark">OD</span></div>
+<main id="auth" class="auth" hidden>
+  <div class="auth-card">
+    <div class="brand auth-brand"><span class="mark">OD</span><h1>Offer Desk</h1></div>
+    <p class="auth-lede">Track every application, see how well you fit, and write cover letters from your real experience.</p>
+    <form id="authForm" class="panel" novalidate>
+      <div class="seg" role="tablist">
+        <button type="button" class="seg-b" data-amode="signin" aria-selected="true">Sign in</button>
+        <button type="button" class="seg-b" data-amode="signup" aria-selected="false">Create account</button>
+      </div>
+      <div class="field"><label class="label" for="auEmail">Email</label><input id="auEmail" type="email" autocomplete="email" inputmode="email" autocapitalize="off" required></div>
+      <div class="field" id="auPassWrap"><label class="label" for="auPass">Password</label><input id="auPass" type="password" autocomplete="current-password" minlength="8" required></div>
+      <div class="field" id="auCodeWrap" hidden><label class="label" for="auCode">Code from your email</label><input id="auCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10"></div>
+      <div class="field" id="auNewWrap" hidden><label class="label" for="auNew">New password</label><input id="auNew" type="password" autocomplete="new-password" minlength="8"></div>
+      <button class="btn primary block" id="auSubmit" type="submit">Sign in</button>
+      <p class="status-msg" id="auMsg" role="status"></p>
+      <button type="button" class="btn ghost sm" id="auForgot">Forgot password?</button>
+    </form>
+    <p class="muted" style="font-size:12.5px;text-align:center">By continuing you agree to the <a href="#" id="authPrivacy">privacy policy</a>.</p>
+  </div>
+</main>
+
+<div id="app" hidden>
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="mark">OD</span><h1>Offer Desk</h1></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" id="tab-pipeline" role="tab" aria-selected="true" data-view="pipeline">Pipeline</button>
+      <button class="tab" id="tab-chat" role="tab" aria-selected="false" data-view="chat">AI assistant</button>
+      <button class="tab" id="tab-letters" role="tab" aria-selected="false" data-view="letters">Cover letters</button>
+      <button class="tab" id="tab-resume" role="tab" aria-selected="false" data-view="resume">My background</button>
+      <button class="tab" id="tab-account" role="tab" aria-selected="false" data-view="account">Account</button>
+    </nav>
+    <button class="btn primary" id="addBtn">+ Add job</button>
+  </header>
+
+
+  <section id="view-pipeline">
+    <div class="summary" id="summary"></div>
+    <div class="banner" id="exBanner" hidden>
+      <span><strong>Example jobs.</strong> These show what Offer Desk does and aren't saved. Tap + Add job to start your own pipeline.</span>
+    </div>
+    <div class="banner" id="resumeBanner" hidden>
+      <span><strong>No resume yet.</strong> The AI tools compare each posting against your resume.</span>
+      <button class="btn sm" data-goto="resume">Add resume</button>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <section id="view-chat" hidden>
+    <div class="chat-shell">
+      <div class="chat-heading"><div><h2>Career assistant</h2><p class="muted">Ask about your job search, applications, resume, or interview prep.</p></div><button class="btn sm" id="chatClear">New chat</button></div>
+      <div class="chat-thread" id="chatThread" role="log" aria-live="polite" aria-label="Chat conversation"></div>
+      <div class="chat-suggestions" id="chatSuggestions" aria-label="Suggested questions">
+        <button class="btn sm" data-chat-suggestion="Help me decide which tracked job to prioritize and why.">Which job should I prioritize?</button>
+        <button class="btn sm" data-chat-suggestion="Help me prepare for an interview using my experience.">Prepare me for an interview</button>
+        <button class="btn sm" data-chat-suggestion="What could I improve in my job-search strategy based on my tracked applications?">Review my job search</button>
+      </div>
+      <form class="chat-compose" id="chatForm"><label class="sr-only" for="chatInput">Message the career assistant</label><textarea id="chatInput" rows="2" maxlength="1800" placeholder="Ask a career or job-search question…" required></textarea><button class="btn primary" id="chatSend" type="submit">Send</button></form>
+      <p class="chat-privacy muted">Your message, resume, experience notes, and saved job details may be sent to Claude to answer. Check important advice before acting.</p>
+    </div>
+  </section>
+
+  <section id="view-letters" hidden>
+    <div class="letters-grid">
+      <div class="panel">
+        <h2 style="font-size:20px">Write a cover letter</h2>
+        <div class="field">
+          <label class="label" for="lJob">Job</label>
+          <select id="lJob"></select>
+        </div>
+        <div id="lNew" class="field" style="gap:12px">
+          <div class="row">
+            <div class="field"><label class="label" for="lCompany">Company</label><input id="lCompany" placeholder="Brightpath Learning"></div>
+            <div class="field"><label class="label" for="lRole">Role</label><input id="lRole" placeholder="Full-Stack Engineer"></div>
+          </div>
+          <div class="field"><label class="label" for="lJd">Job description</label><textarea id="lJd" rows="7" placeholder="Paste the posting. Requirements and responsibilities matter most."></textarea></div>
+        </div>
+        <div class="row">
+          <div class="field"><label class="label" for="lTone">Tone</label><select id="lTone"><option>confident</option><option>warm</option><option>concise</option><option>formal</option><option>enthusiastic</option></select></div>
+          <div class="field"><label class="label" for="lLen">Length</label><select id="lLen"><option value="200">Short · ~200 words</option><option value="300" selected>Standard · ~300 words</option><option value="400">Detailed · ~400 words</option></select></div>
+        </div>
+        <div class="field">
+          <label class="label" for="lFocus">What to emphasize (optional)</label>
+          <textarea id="lFocus" rows="3" style="min-height:70px" placeholder="e.g. Lead with the tutoring app I built. Mention I'm open to relocating."></textarea>
+        </div>
+        <div id="lNeeds"></div>
+        <div class="actions">
+          <button class="btn primary" id="lGen">Write cover letter</button>
+          <button class="btn ghost" id="lStop" hidden>Stop</button>
+          <span class="status-msg" id="lMsg"></span>
+        </div>
+      </div>
+      <div class="panel letter-panel">
+        <div class="actions" style="justify-content:space-between">
+          <span class="label">Your letter, edit freely</span>
+          <div class="actions"><button class="btn sm" id="lCopy">Copy</button><button class="btn sm" id="lShare">Share</button><button class="btn sm" id="lSave">Save letter</button></div>
+        </div>
+        <textarea id="lText" class="letter" aria-label="Cover letter" placeholder="Pick a job, then press Write cover letter. It pulls specific accomplishments from your resume and work experience and matches them to what the posting asks for."></textarea>
+      </div>
+    </div>
+    <div class="lib-h"><h3>Saved letters</h3><span class="n" id="libCount"></span></div>
+    <div class="lib" id="lib"></div>
+  </section>
+
+  <section id="view-resume" hidden>
+    <div class="resume-grid">
+      <div class="panel">
+        <div class="row">
+          <div class="field"><label class="label" for="pName">Your name</label><input id="pName" placeholder="Jordan Rivera" autocomplete="name"></div>
+          <div class="field"><label class="label" for="pTarget">Target roles</label><input id="pTarget" placeholder="Product designer, fintech"></div>
+        </div>
+        <div class="field">
+          <label class="label" for="pResume">Resume (plain text)</label>
+          <textarea id="pResume" class="big" placeholder="Paste your resume here: summary, experience with bullet points, skills, education.&#10;&#10;Plain text works best. Copy it straight from your PDF or Word file."></textarea>
+        </div>
+        <div class="field">
+          <label class="label" for="pExp">Work experience details</label>
+          <textarea id="pExp" style="min-height:220px" placeholder="Anything your resume doesn't have room for: what you did at each job, projects you're proud of, numbers (students taught, users, revenue, time saved), problems you solved, awards, volunteer work.&#10;&#10;Example: At Riverside Tutoring (2021–2024) I taught SAT math to about 60 students a year and built a practice-test app they used weekly. Average score gain was 110 points."></textarea>
+          <small style="color:var(--muted);font-size:12.5px">Cover letters use this for specific stories and results. Write it as rough notes. Polish doesn't matter.</small>
+        </div>
+        <div class="actions">
+          <label class="btn sm" for="pFile">Load resume from a .txt or .md file</label>
+          <input type="file" id="pFile" accept=".txt,.md,text/plain,text/markdown" hidden>
+          <span class="status-msg" id="pSaved"></span>
+        </div>
+      </div>
+      <aside class="panel tips">
+        <h3 style="color:var(--ink);font-size:17px">How it works</h3>
+        <ol>
+          <li>Paste your resume here once.</li>
+          <li>Add a job and paste its description.</li>
+          <li>Open the job to run a fit score, draft a cover letter, tailor your bullets, and prep interview answers.</li>
+          <li>Move each job through the pipeline as you hear back.</li>
+        </ol>
+        <p style="margin:0">The AI only uses what's in your resume. It won't invent jobs or skills you don't have, so the more detail you include, the better the output.</p>
+      </aside>
+    </div>
+  </section>
+  <section id="view-account" hidden>
+    <div class="acct">
+      <div class="panel">
+        <h2 style="font-size:20px">Account</h2>
+        <div class="kv"><span class="label">Signed in as</span><b id="acctEmail"></b></div>
+        <div class="actions"><button class="btn" id="signOutBtn">Sign out</button></div>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:17px">AI and your data</h3>
+        <p class="muted">When you use an AI feature, Offer Desk sends your message, resume, work experience notes and relevant saved job details to Anthropic's Claude to generate the result. Anthropic doesn't use API data to train its models. Nothing is sent until you tap an AI button.</p>
+        <div class="kv"><span class="label">AI sharing</span><b id="consentState"></b></div>
+        <div class="actions"><button class="btn sm" id="consentToggle"></button><a class="btn sm ghost" id="privacyLink" href="#">Privacy policy</a></div>
+      </div>
+      <div class="panel">
+        <h3 style="font-size:17px">Delete account</h3>
+        <p class="muted">Permanently deletes your account, jobs, resume and saved letters. This can't be undone.</p>
+        <div class="actions" id="delAcctZone"><button class="btn danger" id="delAcctBtn">Delete my account</button></div>
+      </div>
+      <p class="muted" style="text-align:center;font-size:12px" id="versionLine">Offer Desk</p>
+    </div>
+  </section>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Job details"></aside>
+
+<div class="modal" id="addModal" hidden>
+  <form class="panel" id="addForm">
+    <div class="d-title" style="align-items:center"><h2 style="font-size:20px">Add a job</h2><button type="button" class="btn ghost x" id="addClose" style="margin-left:auto">Close</button></div>
+    <div class="field">
+      <label class="label" for="aJd">Job description</label>
+      <textarea id="aJd" rows="8" placeholder="Paste the full posting: responsibilities, requirements, about the company."></textarea>
+    </div>
+    <div class="actions"><button type="button" class="btn sm" id="aExtract">Fill details from description</button><span class="status-msg" id="aMsg"></span></div>
+    <div class="row">
+      <div class="field"><label class="label" for="aCompany">Company</label><input id="aCompany" required></div>
+      <div class="field"><label class="label" for="aRole">Role</label><input id="aRole" required></div>
+    </div>
+    <div class="row">
+      <div class="field"><label class="label" for="aLocation">Location</label><input id="aLocation" placeholder="Remote, Detroit MI…"></div>
+      <div class="field"><label class="label" for="aUrl">Posting link</label><input id="aUrl" type="url" placeholder="https://"></div>
+    </div>
+    <div class="actions" style="justify-content:flex-end"><button type="submit" class="btn primary">Add to pipeline</button></div>
+  </form>
+</div>
+
+<nav class="bottom-nav" id="bottomNav" aria-label="Sections">
+  <button data-view="pipeline" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="10" y="4" width="5" height="11" rx="1.5"/><rect x="17" y="4" width="4" height="7" rx="1.5"/></svg><span>Pipeline</span></button>
+  <button data-view="chat" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H6l-3 2v-6.5A7.5 7.5 0 1 1 20 11.5Z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></svg><span>AI chat</span></button>
+  <button data-view="letters" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg><span>Letters</span></button>
+  <button data-view="resume" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6z"/><path d="M9 11h7M9 15h7M9 7h4"/></svg><span>Background</span></button>
+  <button data-view="account" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span>Account</span></button>
+</nav>
+</div>
+
+<div class="modal" id="consentModal" hidden>
+  <div class="panel" role="dialog" aria-labelledby="consentTitle">
+    <h2 id="consentTitle" style="font-size:20px">Use AI with your resume?</h2>
+    <p style="margin:0">Offer Desk sends your <b>message</b>, <b>resume</b>, <b>work experience notes</b> and relevant <b>saved job details</b> to <b>Anthropic's Claude</b>, a third-party AI service, when you use an AI feature. It's used only to generate your result and isn't used to train AI models.</p>
+    <p class="muted" style="margin:0;font-size:13.5px">You can turn this off anytime in Account. AI features won't work while it's off.</p>
+    <div class="actions" style="justify-content:flex-end"><button class="btn" id="consentNo">Not now</button><button class="btn primary" id="consentYes">Allow</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

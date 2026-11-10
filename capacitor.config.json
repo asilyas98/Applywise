@@ -1,0 +1,10 @@
+{
+  "appId": "com.simpleai.offerdesk",
+  "appName": "Offer Desk",
+  "webDir": "dist",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#EDF0F3",
+    "scheme": "Offer Desk"
+  }
+}

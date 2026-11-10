@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+.netlify
+ios/App/App/public
+ios/App/build
+ios/DerivedData
