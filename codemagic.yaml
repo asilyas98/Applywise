@@ -1,52 +1,64 @@
-# Codemagic: builds Offer Desk for iOS and uploads it to TestFlight.
-# Setup steps are in README.md ("Build on Codemagic").
 workflows:
   ios-testflight:
-    name: Offer Desk iOS → TestFlight
+    name: Applywise iOS → TestFlight
     max_build_duration: 60
     instance_type: mac_mini_m2
+
     integrations:
-      app_store_connect: SimpleAI ASC Key   # name of your App Store Connect API key in Codemagic Team settings
+      app_store_connect: SimpleAI ASC Key
+
     environment:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.simpleai.offerdesk
+
+      groups:
+        - offer_desk
+
       vars:
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
-      groups:
-        - offer_desk                        # Holds VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_API_BASE, APP_STORE_APPLE_ID
+
       node: 22
       xcode: latest
+
     triggering:
-      events: [push]
+      events:
+        - push
       branch_patterns:
-        - pattern: main
+        - pattern: master
+
     scripts:
       - name: Install dependencies
         script: npm ci
+
       - name: Check release configuration
         script: |
           node -e 'for (const k of ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY", "VITE_API_BASE", "APP_STORE_APPLE_ID"]) { if (!process.env[k] || /YOUR-|0000000000/.test(process.env[k])) { console.error(`Missing or placeholder environment variable: ${k}`); process.exitCode = 1; } }'
           test -f ios/App/App.xcodeproj/project.pbxproj
-          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' ios/App/App/Info.plist)" = "com.simpleai.offerdesk"
-      - name: Build web app and sync into iOS
+
+      - name: Build web app and sync iOS
         script: |
           npm run build
           npx cap sync ios
+
       - name: Set build number
         script: |
           LATEST=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" 2>/dev/null || echo 0)
           NEXT=$((LATEST + 1))
           /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $NEXT" ios/App/App/Info.plist
           echo "Build number $NEXT"
+
       - name: Set up code signing
         script: xcode-project use-profiles
+
       - name: Build IPA
         script: xcode-project build-ipa --project "$XCODE_PROJECT" --scheme "$XCODE_SCHEME"
+
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+
     publishing:
       app_store_connect:
         auth: integration
