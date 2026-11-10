@@ -1,3 +1,4 @@
+# Applywise — build and upload an iOS IPA to TestFlight.
 workflows:
   ios-testflight:
     name: Applywise iOS → TestFlight
@@ -10,15 +11,14 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.simpleai.offerdesk
-
+        bundle_identifier: com.simpleai.aijob
       groups:
-        - offer_desk
-
+        - offer_desk # Must contain VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_API_BASE
       vars:
+        APP_STORE_APPLE_ID: "6833152765"
+        APP_BUNDLE_ID: com.simpleai.aijob
         XCODE_PROJECT: ios/App/App.xcodeproj
         XCODE_SCHEME: App
-
       node: 22
       xcode: latest
 
@@ -32,10 +32,27 @@ workflows:
       - name: Install dependencies
         script: npm ci
 
+      - name: Set the registered Apple bundle ID
+        script: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const appId = process.env.APP_BUNDLE_ID;
+          const configPath = 'capacitor.config.json';
+          const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+          config.appId = appId;
+          fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n');
+          const projectPath = 'ios/App/App.xcodeproj/project.pbxproj';
+          let project = fs.readFileSync(projectPath, 'utf8');
+          if (!/PRODUCT_BUNDLE_IDENTIFIER\s*=/.test(project)) throw new Error('Xcode bundle ID setting was not found');
+          project = project.replace(/(PRODUCT_BUNDLE_IDENTIFIER\s*=\s*)[^;]+;/g, `$1${appId};`);
+          fs.writeFileSync(projectPath, project);
+          console.log(`Configured ${appId}`);
+          NODE
+
       - name: Check release configuration
         script: |
           node -e 'for (const k of ["VITE_SUPABASE_URL", "VITE_SUPABASE_ANON_KEY", "VITE_API_BASE", "APP_STORE_APPLE_ID"]) { if (!process.env[k] || /YOUR-|0000000000/.test(process.env[k])) { console.error(`Missing or placeholder environment variable: ${k}`); process.exitCode = 1; } }'
-          test -f ios/App/App.xcodeproj/project.pbxproj
+          node -e 'const fs=require("fs"); const p=fs.readFileSync("ios/App/App.xcodeproj/project.pbxproj","utf8"); if (!p.includes("PRODUCT_BUNDLE_IDENTIFIER = com.simpleai.aijob;")) process.exit(1);'
 
       - name: Build web app and sync iOS
         script: |
@@ -62,4 +79,4 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true
+        submit_to_testflight: true 
