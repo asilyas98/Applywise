@@ -90,6 +90,6 @@ workflows:
     publishing:
       app_store_connect:
         api_key: $APP_STORE_CONNECT_PRIVATE_KEY
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        key_id: NLV25X8A5S
+        issuer_id: 18872f51-eb5b-49fc-bc34-d78bbb7d5a65
         submit_to_testflight: true
