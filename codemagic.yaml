@@ -13,7 +13,7 @@ workflows:
         distribution_type: app_store
         bundle_identifier: com.simpleai.aijob
       groups:
-        - offer_desk # Must contain VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_API_BASE
+        - applywise # Must contain VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_API_BASE
       vars:
         APP_STORE_APPLE_ID: "6833152765"
         APP_BUNDLE_ID: com.simpleai.aijob
